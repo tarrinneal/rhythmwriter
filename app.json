@@ -1,0 +1,12 @@
+{
+  "name": "rhythmwryter",
+  "displayName": "rhythmwryter",
+  "expo": {
+    "name": "rhythmwryter",
+    "slug": "rhythmwryter",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}

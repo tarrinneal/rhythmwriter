@@ -1,2 +1,0 @@
-# rhythmwryter
-Music writing simplified
