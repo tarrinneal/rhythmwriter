@@ -2,8 +2,7 @@ import { Pressable, StyleSheet, Text, View, TextInput } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { Audio } from 'expo-av';
 
-export default function Met() {
-  const [tempo, setTempo] = useState(180);
+export default function Met({ tempo, setTempo }) {
   const [metOn, setMetOn] = useState(false);
   const [sound, setSound] = useState();
 
@@ -86,5 +85,13 @@ const styles = StyleSheet.create({
     margin: 12,
     borderWidth: 1,
     padding: 10,
+  },
+  wrapperCustom: {
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    backgroundColor: 'red',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
