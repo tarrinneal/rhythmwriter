@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Button } from 'react-native-web';
 import React, { useState } from 'react';
+
+import Met from './Met';
 
 export default function App() {
   const [times, setTimes] = useState([]);
@@ -12,26 +13,39 @@ export default function App() {
   return (
     <>
       <View style={styles.container}>
-        {times.map((time) => (
-          <Text>{time}</Text>
+        {times.map((time, i) => (
+          <Text key={time + i}>{time}</Text>
         ))}
         <StatusBar style='auto' />
       </View>
       <View style={styles.container}>
-        <Pressable
-          onPress={buttonPress}
-          style={({ pressed }) => [
-            {
-              backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
-            },
-            styles.wrapperCustom,
-          ]}
-        >
-          {({ pressed }) => (
-            <Text style={styles.text}>{pressed ? 'Pressed!' : 'Press Me'}</Text>
-          )}
-        </Pressable>
+        <View style={styles.buttonRow}>
+          <Pressable
+            onPress={buttonPress}
+            style={({ pressed }) => [
+              {
+                backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+              },
+              styles.wrapperCustom,
+            ]}
+          >
+            {({ pressed }) => <Text style={styles.text}>Left</Text>}
+          </Pressable>
+          <Pressable
+            onPress={buttonPress}
+            style={({ pressed }) => [
+              {
+                backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+              },
+              styles.wrapperCustom,
+            ]}
+          >
+            {({ pressed }) => <Text style={styles.text}>Right</Text>}
+          </Pressable>
+        </View>
       </View>
+
+      <Met />
     </>
   );
 }
@@ -45,5 +59,16 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#999',
+  },
+  wrapperCustom: {
+    width: 150,
+    height: 300,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderStyle: 'solid',
+    borderWidth: 1,
+  },
+  buttonRow: {
+    flexDirection: 'row',
   },
 });
