@@ -1,4 +1,11 @@
-import { Pressable, StyleSheet, Text, View, TextInput } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Keyboard,
+} from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { Audio } from 'expo-av';
 
@@ -62,6 +69,7 @@ export default function Met({ tempo, setTempo }) {
       <TextInput
         style={styles.input}
         onChangeText={updateTempo}
+        onSubmitEditing={Keyboard.dismiss}
         value={tempo.toString()}
         placeholder='Tempo'
         keyboardType='numeric'
