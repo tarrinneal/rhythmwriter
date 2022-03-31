@@ -17,11 +17,12 @@ const noteValues = {
   0.25: 'sixteenth',
   0.166: 'sixtuplet',
   0.125: 'thirty-second',
+  0.0625: 'sixty-fourth',
 };
 
 const noteRounder = (num) => {
   if (num < 0.1) {
-    //
+    return 0.0625;
   } else if (num < 0.145) {
     return 0.125;
   } else if (num < 0.2) {
@@ -36,34 +37,9 @@ const noteRounder = (num) => {
     return 0.666;
   } else if (num < 0.88) {
     return 0.75;
-  } else if (num < 1.1) {
-    return 1;
-  } else if (num < 1.3) {
-    return 1.25;
-  } else if (num < 1.66) {
-    return 1.5;
-  } else if (num < 1.85) {
-    return 1.75;
-  } else if (num < 2.15) {
-    return 2;
-  } else if (num < 2.35) {
-    return 2.25;
-  } else if (num < 2.65) {
-    return 2.5;
-  } else if (num < 2.85) {
-    return 2.75;
-  } else if (num < 3.15) {
-    return 3;
-  } else if (num < 3.35) {
-    return 3.25;
-  } else if (num < 3.65) {
-    return 3.5;
-  } else if (num < 3.85) {
-    return 3.75;
-  } else if (num < 4.15) {
-    return 4;
   } else {
-    //
+    console.log;
+    return Math.floor((num + 0.15) * 4) / 4;
   }
 };
 
@@ -81,14 +57,12 @@ export default function App() {
   const calculateNotes = async () => {
     let tempS = 60 / tempo;
     console.log('tempo', tempS);
-    times.map((time, i) => {
-      console.log(times[i + 1].time, time.time);
-      let dif =
-        times[i + 1] && times[i + 1].time ? times[i + 1].time - time.time : 1;
+    let newTimes = times.map((time, i) => {
+      let dif = times[i + 1] ? times[i + 1].time - time.time : tempS * 1000;
       console.log(dif);
       let difS = dif / 1000;
       console.log(difS);
-      let unround = tempS / difS;
+      let unround = difS / tempS;
       console.log(unround);
       let round = noteRounder(unround);
       console.log(round);
@@ -97,9 +71,10 @@ export default function App() {
       return {
         hand: time.hand,
         time: time.time,
-        note,
+        note: note || 'unknown',
       };
     });
+    await setTimes(newTimes);
     setNotesCompleted(true);
   };
 
