@@ -8,9 +8,14 @@ export default function Met() {
   const [sound, setSound] = useState();
 
   const buttonPress = async () => {
+    if (tempo === '') {
+      alert('Please enter a tempo');
+      return;
+    }
     if (metOn) {
       clearInterval(met);
     } else {
+      runMet();
       met = setInterval(runMet, (60 / tempo) * 1000);
     }
     setMetOn((metOn) => !metOn);
@@ -27,7 +32,9 @@ export default function Met() {
   const updateTempo = async (tempo) => {
     if (+tempo > 0) {
       setTempo(tempo);
-    } else if (tempo !== undefined) {
+    } else if (tempo === '') {
+      setTempo('');
+    } else {
       alert('Tempo must be greater than 0');
     }
   };
@@ -39,10 +46,6 @@ export default function Met() {
         }
       : undefined;
   }, [sound]);
-
-  // useEffect(() => {
-  //   runMet();
-  // }, [metOn]);
 
   return (
     <View style={styles.container}>
@@ -61,7 +64,7 @@ export default function Met() {
         style={styles.input}
         onChangeText={updateTempo}
         value={tempo.toString()}
-        placeholder='tempo'
+        placeholder='Tempo'
         keyboardType='numeric'
       />
     </View>

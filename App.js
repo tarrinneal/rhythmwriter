@@ -6,22 +6,38 @@ import Met from './Met';
 
 export default function App() {
   const [times, setTimes] = useState([]);
-  const buttonPress = async () => {
-    await setTimes([...times, new Date().toTimeString()]);
+  const buttonPress = async (hand) => {
+    // await setTimes([...times, new Date().toTimeString()]);
+    setTimes([...times, hand]);
   };
 
   return (
     <>
+      <StatusBar style='auto' />
       <View style={styles.container}>
-        {times.map((time, i) => (
-          <Text key={time + i}>{time}</Text>
-        ))}
-        <StatusBar style='auto' />
+        <View style={styles.notes}>
+          {times.map((time, i) => (
+            <Text key={time + i}>{time}</Text>
+          ))}
+        </View>
+      </View>
+      <View style={styles.container}>
+        <Pressable
+          onPress={() => setTimes([])}
+          style={({ pressed }) => [
+            {
+              backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+            },
+            styles.reset,
+          ]}
+        >
+          {({ pressed }) => <Text style={styles.text}>Reset</Text>}
+        </Pressable>
       </View>
       <View style={styles.container}>
         <View style={styles.buttonRow}>
           <Pressable
-            onPress={buttonPress}
+            onTouchStart={() => buttonPress('L')}
             style={({ pressed }) => [
               {
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
@@ -32,7 +48,7 @@ export default function App() {
             {({ pressed }) => <Text style={styles.text}>Left</Text>}
           </Pressable>
           <Pressable
-            onPress={buttonPress}
+            onTouchStart={() => buttonPress('R')}
             style={({ pressed }) => [
               {
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
@@ -51,11 +67,27 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  notes: {
+    flex: 1,
+    flexDirection: 'row',
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  reset: {
+    height: 40,
+    width: 40,
+    margin: 12,
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
   container: {
     flex: 1,
     backgroundColor: '#748',
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'column',
   },
   text: {
     color: '#999',
