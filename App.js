@@ -38,7 +38,6 @@ const noteRounder = (num) => {
   } else if (num < 0.88) {
     return 0.75;
   } else {
-    console.log;
     return Math.floor((num + 0.15) * 4) / 4;
   }
 };
@@ -55,22 +54,24 @@ export default function App() {
 
   const calculateNotes = async () => {
     let tempS = 60 / tempo;
-    console.log('tempo', tempS);
     let newTimes = times.map((time, i) => {
       let dif = times[i + 1] ? times[i + 1].time - time.time : tempS * 1000;
-      console.log(dif);
       let difS = dif / 1000;
-      console.log(difS);
       let unround = difS / tempS;
-      console.log(unround);
       let round = noteRounder(unround);
-      console.log(round);
+      let remain;
+      if (round > 1) {
+        oldRound = round;
+        round = Math.floor(round);
+        remain = oldRound - round;
+      }
       let note = noteValues[round];
-      console.log(note);
+
       return {
         hand: time.hand,
         time: time.time,
         note: note || 'unknown',
+        rest: noteValues[remain],
       };
     });
     await setTimes(newTimes);
@@ -84,7 +85,11 @@ export default function App() {
         <View style={styles.notes}>
           {times.map((time, i) => (
             <Text key={time.hand + i}>
-              {notesCompleted ? time.note : time.hand}
+              {notesCompleted
+                ? time.rest
+                  ? time.note + ' note ' + time.rest + ' rest '
+                  : time.note + ' note '
+                : time.hand}
             </Text>
           ))}
         </View>
