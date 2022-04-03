@@ -49,7 +49,7 @@ export default function App() {
   const [notesCompleted, setNotesCompleted] = useState(false);
 
   const buttonPress = async (hand) => {
-    setTimes([...times, { hand, time: Date.now() }]);
+    setTimes([...times, { hand, time: global.nativePerformanceNow() }]);
     setNotesCompleted(false);
   };
 
