@@ -5,10 +5,6 @@ import React, { useState } from 'react';
 import Met from './Met';
 
 const noteValues = {
-  4: 'whole',
-  3: 'dotted half',
-  2: 'half',
-  1.5: 'dotted-quarter',
   1: 'quarter',
   0.75: 'dotted-eighth',
   0.666: 'quarter-triplet',
@@ -21,7 +17,9 @@ const noteValues = {
 };
 
 const noteRounder = (num) => {
-  if (num < 0.1) {
+  if (num === 0) {
+    return 0;
+  } else if (num < 0.1) {
     return 0.0625;
   } else if (num < 0.145) {
     return 0.125;
@@ -38,7 +36,7 @@ const noteRounder = (num) => {
   } else if (num < 0.88) {
     return 0.75;
   } else {
-    return Math.floor((num + 0.15) * 4) / 4;
+    return 1;
   }
 };
 
@@ -58,22 +56,30 @@ export default function App() {
       let dif = times[i + 1] ? times[i + 1].time - time.time : tempS * 1000;
       let difS = dif / 1000;
       let unround = difS / tempS;
-      let round = noteRounder(unround);
-      let remain;
-      if (round > 1) {
-        oldRound = round;
-        round = Math.floor(round);
-        remain = oldRound - round;
+      let remain = 0;
+      let longRest = 0;
+      if (unround > 1) {
+        let remainder = unround - 1;
+        console.log(remainder);
+        unround = 1;
+        longRest = Math.floor(remainder);
+        console.log(longRest);
+        remain = remainder - longRest < 0.2 ? 0 : remainder - longRest;
+        console.log(remain);
       }
+      let round = noteRounder(unround);
       let note = noteValues[round];
 
+      let rest = noteValues[noteRounder(remain)];
+
       return {
-        hand: time.hand,
-        time: time.time,
-        note: note || 'unknown',
-        rest: noteValues[remain],
+        ...time,
+        note,
+        rest,
+        longRest,
       };
     });
+    console.log(newTimes);
     await setTimes(newTimes);
     setNotesCompleted(true);
   };
@@ -86,9 +92,9 @@ export default function App() {
           {times.map((time, i) => (
             <Text key={time.hand + i}>
               {notesCompleted
-                ? time.rest
-                  ? time.note + ' note ' + time.rest + ' rest '
-                  : time.note + ' note '
+                ? `${time.note} note ${
+                    time.longRest ? time.longRest + ' beats of rest ' : ''
+                  }${time.rest ? time.rest + ' rest ' : ''}`
                 : time.hand}
             </Text>
           ))}
