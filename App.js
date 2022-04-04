@@ -45,8 +45,8 @@ export default function App() {
   const [tempo, setTempo] = useState(180);
   const [notesCompleted, setNotesCompleted] = useState(false);
 
-  const buttonPress = async (hand) => {
-    setTimes([...times, { hand, time: global.nativePerformanceNow() }]);
+  const buttonPress = async (hand, mod) => {
+    setTimes([...times, { hand, mod, time: global.nativePerformanceNow() }]);
     setNotesCompleted(false);
   };
 
@@ -92,7 +92,7 @@ export default function App() {
           {times.map((time, i) => (
             <Text key={time.hand + i}>
               {notesCompleted
-                ? `${time.note} note ${
+                ? `${time.mod ? time.mod : ''}${time.note} note ${
                     time.longRest ? time.longRest + ' beats of rest ' : ''
                   }${time.rest ? time.rest + ' rest ' : ''}`
                 : time.hand}
@@ -124,7 +124,32 @@ export default function App() {
           {({ pressed }) => <Text style={styles.text}>Calculate Notes</Text>}
         </Pressable>
       </View>
+
       <View style={styles.container}>
+        <View style={styles.buttonRow}>
+          <Pressable
+            onTouchStart={() => buttonPress('L', '^')}
+            style={({ pressed }) => [
+              {
+                backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+              },
+              styles.wrapperCustomSmall,
+            ]}
+          >
+            {({ pressed }) => <Text style={styles.text}>^L</Text>}
+          </Pressable>
+          <Pressable
+            onTouchStart={() => buttonPress('R', '^')}
+            style={({ pressed }) => [
+              {
+                backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+              },
+              styles.wrapperCustomSmall,
+            ]}
+          >
+            {({ pressed }) => <Text style={styles.text}>^R</Text>}
+          </Pressable>
+        </View>
         <View style={styles.buttonRow}>
           <Pressable
             onTouchStart={() => buttonPress('L')}
@@ -135,7 +160,7 @@ export default function App() {
               styles.wrapperCustom,
             ]}
           >
-            {({ pressed }) => <Text style={styles.text}>Left</Text>}
+            {({ pressed }) => <Text style={styles.text}>L</Text>}
           </Pressable>
           <Pressable
             onTouchStart={() => buttonPress('R')}
@@ -146,7 +171,7 @@ export default function App() {
               styles.wrapperCustom,
             ]}
           >
-            {({ pressed }) => <Text style={styles.text}>Right</Text>}
+            {({ pressed }) => <Text style={styles.text}>R</Text>}
           </Pressable>
         </View>
       </View>
@@ -186,6 +211,15 @@ const styles = StyleSheet.create({
   wrapperCustom: {
     width: 150,
     height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderRadius: 25,
+  },
+  wrapperCustomSmall: {
+    width: 150,
+    height: 75,
     justifyContent: 'center',
     alignItems: 'center',
     borderStyle: 'solid',

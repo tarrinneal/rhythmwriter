@@ -81,9 +81,11 @@ export default function Met({ tempo, setTempo }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: 'row',
     backgroundColor: '#748',
     alignItems: 'center',
     justifyContent: 'center',
+    height: 50,
   },
   text: {
     color: '#999',
