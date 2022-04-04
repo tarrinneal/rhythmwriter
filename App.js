@@ -5,15 +5,27 @@ import React, { useState } from 'react';
 import Met from './Met';
 
 const noteValues = {
-  1: 'quarter',
-  0.75: 'dotted-eighth',
-  0.666: 'quarter-triplet',
-  0.5: 'eighth',
-  0.333: 'triplet',
-  0.25: 'sixteenth',
-  0.166: 'sixtuplet',
-  0.125: 'thirty-second',
-  0.0625: 'sixty-fourth',
+  1: '𝅘𝅥',
+  0.75: '𝅘𝅥𝅮.',
+  0.666: '3𝅘𝅥',
+  0.5: '𝅘𝅥𝅮',
+  0.333: '3𝅘𝅥𝅮',
+  0.25: '𝅘𝅥𝅯',
+  0.166: '3𝅘𝅥𝅯',
+  0.125: '𝅘𝅥𝅰',
+  0.0625: '𝅘𝅥𝅱',
+};
+
+const restValues = {
+  1: '𝄽',
+  0.75: '𝄾𝄿',
+  0.666: '3𝄽',
+  0.5: '𝄾',
+  0.333: '3𝄾',
+  0.25: '𝄿',
+  0.166: '3𝄿',
+  0.125: '𝅀',
+  0.0625: '𝅁',
 };
 
 const noteRounder = (num) => {
@@ -70,7 +82,7 @@ export default function App() {
       let round = noteRounder(unround);
       let note = noteValues[round];
 
-      let rest = noteValues[noteRounder(remain)];
+      let rest = restValues[noteRounder(remain)];
 
       return {
         ...time,
@@ -92,9 +104,9 @@ export default function App() {
           {times.map((time, i) => (
             <Text key={time.hand + i}>
               {notesCompleted
-                ? `${time.mod ? time.mod : ''}${time.note} note ${
+                ? `${time.mod ? time.mod : ''}${time.note} ${
                     time.longRest ? time.longRest + ' beats of rest ' : ''
-                  }${time.rest ? time.rest + ' rest ' : ''}`
+                  }${time.rest ? time.rest + ' ' : ''}`
                 : time.hand}
             </Text>
           ))}
