@@ -140,7 +140,7 @@ export default function App() {
       <View style={styles.container}>
         <View style={styles.buttonRow}>
           <Pressable
-            onTouchStart={() => buttonPress('L', '^')}
+            onTouchStart={() => buttonPress('L', '>')}
             style={({ pressed }) => [
               {
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
@@ -148,10 +148,10 @@ export default function App() {
               styles.wrapperCustomSmall,
             ]}
           >
-            {({ pressed }) => <Text style={styles.text}>^L</Text>}
+            {({ pressed }) => <Text style={styles.text}>&gt;L</Text>}
           </Pressable>
           <Pressable
-            onTouchStart={() => buttonPress('R', '^')}
+            onTouchStart={() => buttonPress('R', '>')}
             style={({ pressed }) => [
               {
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
@@ -159,7 +159,7 @@ export default function App() {
               styles.wrapperCustomSmall,
             ]}
           >
-            {({ pressed }) => <Text style={styles.text}>^R</Text>}
+            {({ pressed }) => <Text style={styles.text}>&gt;R</Text>}
           </Pressable>
         </View>
         <View style={styles.buttonRow}>
