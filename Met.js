@@ -54,7 +54,8 @@ export default function Met({ tempo, setTempo }) {
   }, [sound]);
 
   return (
-    <View style={styles.container}>
+    // <View style={styles}>
+    <View style={styles.metContainer}>
       <Pressable
         onPress={buttonPress}
         style={() => [
@@ -75,6 +76,7 @@ export default function Met({ tempo, setTempo }) {
         keyboardType="numeric"
       />
     </View>
+    // </View>
   );
 }
 
@@ -103,6 +105,14 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     backgroundColor: "red",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  metContainer: {
+    borderWidth: 1,
+    // width: "50%",
+    padding: "1rem",
+    display: "flex",
     justifyContent: "center",
     alignItems: "center",
   },
