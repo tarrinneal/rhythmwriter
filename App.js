@@ -1,31 +1,31 @@
-import { StatusBar } from 'expo-status-bar';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import React, { useState } from 'react';
+import { StatusBar } from "expo-status-bar";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
 
-import Met from './Met';
+import Met from "./Met";
 
 const noteValues = {
-  1: '𝅘𝅥',
-  0.75: '𝅘𝅥𝅮.',
-  0.666: '3𝅘𝅥',
-  0.5: '𝅘𝅥𝅮',
-  0.333: '3𝅘𝅥𝅮',
-  0.25: '𝅘𝅥𝅯',
-  0.166: '3𝅘𝅥𝅯',
-  0.125: '𝅘𝅥𝅰',
-  0.0625: '𝅘𝅥𝅱',
+  1: "𝅘𝅥",
+  0.75: "𝅘𝅥𝅮.",
+  0.666: "3𝅘𝅥",
+  0.5: "𝅘𝅥𝅮",
+  0.333: "3𝅘𝅥𝅮",
+  0.25: "𝅘𝅥𝅯",
+  0.166: "3𝅘𝅥𝅯",
+  0.125: "𝅘𝅥𝅰",
+  0.0625: "𝅘𝅥𝅱",
 };
 
 const restValues = {
-  1: '𝄽',
-  0.75: '𝄾𝄿',
-  0.666: '3𝄽',
-  0.5: '𝄾',
-  0.333: '3𝄾',
-  0.25: '𝄿',
-  0.166: '3𝄿',
-  0.125: '𝅀',
-  0.0625: '𝅁',
+  1: "𝄽",
+  0.75: "𝄾𝄿",
+  0.666: "3𝄽",
+  0.5: "𝄾",
+  0.333: "3𝄾",
+  0.25: "𝄿",
+  0.166: "3𝄿",
+  0.125: "𝅀",
+  0.0625: "𝅁",
 };
 
 const noteRounder = (num) => {
@@ -98,28 +98,29 @@ export default function App() {
 
   return (
     <>
-      <StatusBar style='auto' />
+      <StatusBar style={styles.appContainer} />
       <View style={styles.container}>
         <View style={styles.notes}>
           {times.map((time, i) => (
             <Text key={time.hand + i}>
               {notesCompleted
-                ? `${time.mod ? time.mod : ''}${time.note} ${
-                    time.longRest ? time.longRest + ' beats of rest ' : ''
-                  }${time.rest ? time.rest + ' ' : ''}`
+                ? `${time.mod ? time.mod : ""}${time.note} ${
+                    time.longRest ? time.longRest + " beats of rest " : ""
+                  }${time.rest ? time.rest + " " : ""}`
                 : time.hand}
             </Text>
           ))}
         </View>
       </View>
+      <Met tempo={tempo} setTempo={setTempo} />
       <View style={styles.notes}>
         <Pressable
           onPress={() => setTimes([])}
           style={({ pressed }) => [
             {
-              backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+              backgroundColor: pressed ? "rgb(210, 230, 255)" : "white",
             },
-            styles.reset,
+            styles.buttons,
           ]}
         >
           {({ pressed }) => <Text style={styles.text}>Reset</Text>}
@@ -128,46 +129,46 @@ export default function App() {
           onPress={calculateNotes}
           style={({ pressed }) => [
             {
-              backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+              backgroundColor: pressed ? "rgb(210, 230, 255)" : "white",
             },
-            styles.reset,
+            styles.buttons,
           ]}
         >
-          {({ pressed }) => <Text style={styles.text}>Calculate Notes</Text>}
+          {({ pressed }) => <Text style={styles.text}>Calculate</Text>}
         </Pressable>
       </View>
 
       <View style={styles.container}>
         <View style={styles.buttonRow}>
           <Pressable
-            onTouchStart={() => buttonPress('L', '^')}
+            onTouchStart={() => buttonPress("L", "^")}
             style={({ pressed }) => [
               {
-                backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+                backgroundColor: pressed ? "rgb(210, 230, 255)" : "white",
               },
               styles.wrapperCustomSmall,
             ]}
           >
-            {({ pressed }) => <Text style={styles.text}>^L</Text>}
+            {({ pressed }) => <Text style={{ color: "black" }}>^L</Text>}
           </Pressable>
           <Pressable
-            onTouchStart={() => buttonPress('R', '^')}
+            onTouchStart={() => buttonPress("R", "^")}
             style={({ pressed }) => [
               {
-                backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+                backgroundColor: pressed ? "rgb(210, 230, 255)" : "white",
               },
               styles.wrapperCustomSmall,
             ]}
           >
-            {({ pressed }) => <Text style={styles.text}>^R</Text>}
+            {({ pressed }) => <Text style={{ color: "black" }}>^R</Text>}
           </Pressable>
         </View>
         <View style={styles.buttonRow}>
           <Pressable
-            onTouchStart={() => buttonPress('L')}
+            onTouchStart={() => buttonPress("L")}
             style={({ pressed }) => [
               {
-                backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+                backgroundColor: pressed ? "rgb(210, 230, 255)" : "white",
               },
               styles.wrapperCustom,
             ]}
@@ -175,10 +176,10 @@ export default function App() {
             {({ pressed }) => <Text style={styles.text}>L</Text>}
           </Pressable>
           <Pressable
-            onTouchStart={() => buttonPress('R')}
+            onTouchStart={() => buttonPress("R")}
             style={({ pressed }) => [
               {
-                backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+                backgroundColor: pressed ? "rgb(210, 230, 255)" : "white",
               },
               styles.wrapperCustom,
             ]}
@@ -187,58 +188,79 @@ export default function App() {
           </Pressable>
         </View>
       </View>
-
-      <Met tempo={tempo} setTempo={setTempo} />
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  notes: {
-    flex: 1,
-    flexDirection: 'row',
-    alignContent: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#748',
-    flexWrap: 'wrap',
+  appContainer: {
+    borderColor: "white",
+    borderWidth: 2,
+    backgroundColor: "green",
   },
-  reset: {
+  notes: {
+    shadowColor: "#14FF8E",
+    flex: 1,
+    flexDirection: "row",
+    alignContent: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "black",
+    flexWrap: "wrap",
+    height: 1,
+  },
+  buttons: {
+    shadowColor: "#14FF8E",
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.75,
+    shadowRadius: 4,
+    borderColor: "#14FF8E",
+    elevation: 5,
+    borderRadius: 5,
+    color: "white",
+    borderWidth: 1,
+    backgroundColor: "black",
     height: 40,
     minWidth: 80,
     margin: 12,
-    justifyContent: 'center',
-    alignSelf: 'center',
+    justifyContent: "center",
+    alignSelf: "center",
   },
   container: {
+    height: 0,
     flex: 1,
-    backgroundColor: '#748',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'column',
+    backgroundColor: "white",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "column",
   },
   text: {
-    color: '#999',
+    color: "white",
+    textAlign: "center",
   },
   wrapperCustom: {
     width: 150,
     height: 200,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderStyle: 'solid',
+    justifyContent: "center",
+    alignItems: "center",
+    borderStyle: "solid",
     borderWidth: 1,
     borderRadius: 25,
+    backgroundColor: "black",
   },
   wrapperCustomSmall: {
     width: 150,
     height: 75,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderStyle: 'solid',
+    justifyContent: "center",
+    alignItems: "center",
+    borderStyle: "solid",
     borderWidth: 1,
     borderRadius: 25,
   },
   buttonRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
 });
