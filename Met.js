@@ -65,7 +65,7 @@ export default function Met({ tempo, setTempo }) {
           styles.wrapperCustom,
         ]}
       >
-        {() => <Text style={styles.text}>{metOn ? "Stop" : "Met"}</Text>}
+        {() => <Text style={styles.text}>{metOn ? "Stop" : "Play"}</Text>}
       </Pressable>
       <TextInput
         style={styles.input}
@@ -74,7 +74,7 @@ export default function Met({ tempo, setTempo }) {
         value={tempo.toString()}
         placeholder="Tempo"
         keyboardType="numeric"
-      />
+      ></TextInput>
     </View>
     // </View>
   );
@@ -87,33 +87,38 @@ const styles = StyleSheet.create({
     backgroundColor: "gray",
     alignItems: "center",
     justifyContent: "center",
-    height: 25,
+    height: "20%",
   },
   text: {
-    color: "#999",
+    color: "white",
   },
   input: {
+    fontSize: 50,
+    color: "white",
     height: 40,
     margin: 12,
-    borderWidth: 1,
-    padding: 10,
+    maxWidth: 90,
   },
   wrapperCustom: {
-    borderColor: "black",
-    borderWidth: 2,
+    borderColor: "white",
+    borderWidth: 1,
     borderRadius: 25,
     width: 50,
     height: 50,
     backgroundColor: "red",
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 10,
   },
   metContainer: {
+    backgroundColor: "gray",
     borderWidth: 1,
-    // width: "50%",
-    padding: "1rem",
-    display: "flex",
+    marginTop: 10,
+    marginLeft: 100,
+    marginRight: 100,
     justifyContent: "center",
     alignItems: "center",
+    borderRadius: 10,
+    borderColor: "white",
   },
 });
