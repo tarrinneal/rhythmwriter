@@ -125,13 +125,11 @@ export default function App() {
     // Render voice
     voice.draw(context, stave);
   };
-
+  //{context.render()}
   return (
     <>
-      <StatusBar style='auto' />
-      <View style={styles.container}>
-        {context.render()}
-        <View style={styles.notes}>
+      <View style={styles.appContainer}>
+        <View style={styles.noteContainer}>
           {times.map((time, i) => (
             <Text key={time.hand + i}>
               {notesCompleted
@@ -142,81 +140,81 @@ export default function App() {
             </Text>
           ))}
         </View>
-      </View>
-      <View style={styles.notes}>
-        <Pressable
-          onPress={() => setTimes([])}
-          style={({ pressed }) => [
-            {
-              backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
-            },
-            styles.reset,
-          ]}
-        >
-          {({ pressed }) => <Text style={styles.text}>Reset</Text>}
-        </Pressable>
-        <Pressable
-          onPress={calculateNotes}
-          style={({ pressed }) => [
-            {
-              backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
-            },
-            styles.reset,
-          ]}
-        >
-          {({ pressed }) => <Text style={styles.text}>Calculate Notes</Text>}
-        </Pressable>
-        <Met tempo={tempo} setTempo={setTempo} />
-      </View>
-
-      <View style={styles.container}>
-        <View style={styles.buttonRow}>
+        <View style={styles.buttonContainer}>
           <Pressable
-            onTouchStart={() => buttonPress('L', '>')}
+            onPress={() => setTimes([])}
             style={({ pressed }) => [
               {
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
               },
-              styles.wrapperCustomSmall,
+              styles.buttons,
             ]}
           >
-            {({ pressed }) => <Text style={styles.text}>&gt;L</Text>}
+            {({ pressed }) => <Text style={styles.text}>Reset</Text>}
           </Pressable>
           <Pressable
-            onTouchStart={() => buttonPress('R', '>')}
+            onPress={calculateNotes}
             style={({ pressed }) => [
               {
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
               },
-              styles.wrapperCustomSmall,
+              styles.buttons,
             ]}
           >
-            {({ pressed }) => <Text style={styles.text}>&gt;R</Text>}
+            {({ pressed }) => <Text style={styles.text}>Calculate</Text>}
           </Pressable>
         </View>
-        <View style={styles.buttonRow}>
-          <Pressable
-            onTouchStart={() => buttonPress('L')}
-            style={({ pressed }) => [
-              {
-                backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
-              },
-              styles.wrapperCustom,
-            ]}
-          >
-            {({ pressed }) => <Text style={styles.text}>L</Text>}
-          </Pressable>
-          <Pressable
-            onTouchStart={() => buttonPress('R')}
-            style={({ pressed }) => [
-              {
-                backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
-              },
-              styles.wrapperCustom,
-            ]}
-          >
-            {({ pressed }) => <Text style={styles.text}>R</Text>}
-          </Pressable>
+        <Met tempo={tempo} setTempo={setTempo} />
+
+        <View style={styles.drummingContainer}>
+          <View style={styles.firstButtonRow}>
+            <Pressable
+              onTouchStart={() => buttonPress('L', '^')}
+              style={({ pressed }) => [
+                {
+                  backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+                },
+                styles.accentButtons,
+              ]}
+            >
+              {({ pressed }) => <Text style={{ color: 'black' }}>^L</Text>}
+            </Pressable>
+            <Pressable
+              onTouchStart={() => buttonPress('R', '^')}
+              style={({ pressed }) => [
+                {
+                  backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+                },
+                styles.accentButtons,
+              ]}
+            >
+              {({ pressed }) => <Text style={{ color: 'black' }}>^R</Text>}
+            </Pressable>
+          </View>
+          <View style={styles.secondButtonRow}>
+            <Pressable
+              onTouchStart={() => buttonPress('L')}
+              style={({ pressed }) => [
+                {
+                  backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+                },
+                styles.drumButtons,
+              ]}
+            >
+              {({ pressed }) => <Text style={styles.text}>L</Text>}
+            </Pressable>
+            <Pressable
+              onTouchStart={() => buttonPress('R')}
+              style={({ pressed }) => [
+                {
+                  backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
+                },
+                styles.drumButtons,
+              ]}
+            >
+              {({ pressed }) => <Text style={styles.text}>R</Text>}
+            </Pressable>
+          </View>
         </View>
       </View>
     </>
@@ -224,51 +222,126 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  appContainer: {
+    height: '100%',
+    // borderColor: "white",
+    // borderWidth: 2,
+    backgroundColor: 'black',
+    padding: 15,
+  },
+  noteContainer: {
+    borderWidth: 3,
+    borderColor: 'gray',
+    borderRadius: 20,
+    height: '20%',
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    marginTop: 30,
+  },
+  buttonContainer: {
+    height: '10%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
   notes: {
+    shadowColor: '#14FF8E',
     flex: 1,
     flexDirection: 'row',
     alignContent: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#748',
+    backgroundColor: 'black',
     flexWrap: 'wrap',
+    height: 1,
   },
-  reset: {
+  buttons: {
+    shadowColor: '#14FF8E',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    width: '43%',
+    shadowOpacity: 0.75,
+    shadowRadius: 15,
+    borderColor: '#14FF8E',
+    elevation: 5,
+    borderRadius: 5,
+    color: 'white',
+    borderWidth: 1,
+    backgroundColor: 'black',
     height: 40,
     minWidth: 80,
-    margin: 12,
+    margin: 15,
     justifyContent: 'center',
     alignSelf: 'center',
   },
-  container: {
+  drummingContainer: {
+    height: '50%',
     flex: 1,
-    backgroundColor: '#748',
+    // backgroundColor: "white",
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'column',
   },
   text: {
-    color: '#999',
+    color: 'white',
+    textAlign: 'center',
   },
-  wrapperCustom: {
-    width: 150,
-    height: 200,
+  drumButtons: {
+    shadowColor: '#14FF8E',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    width: '50%',
+    shadowOpacity: 0.75,
+    shadowRadius: 10,
+    borderColor: '#14FF8E',
+    // width: 180,
+    height: '95%',
     justifyContent: 'center',
     alignItems: 'center',
     borderStyle: 'solid',
     borderWidth: 1,
     borderRadius: 25,
+    backgroundColor: 'black',
+    // marginLeft: 10,
+    // marginRight: 10,
+    // marginLeft: 10,
+    // marginRight: 10,
   },
-  wrapperCustomSmall: {
-    width: 150,
-    height: 75,
+  accentButtons: {
+    width: '50%',
+    height: '85%',
+    // margin: 10,
     justifyContent: 'center',
     alignItems: 'center',
     borderStyle: 'solid',
     borderWidth: 1,
     borderRadius: 25,
+    borderColor: 'white',
+    borderWidth: 1,
+    borderColor: 'black',
   },
-  buttonRow: {
+  firstButtonRow: {
+    height: '30%',
+    width: '90%',
+    maxWidth: '90%',
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    // gap: 10,
+  },
+  secondButtonRow: {
+    display: 'flex',
+    height: '70%',
+    width: '90%',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
 });

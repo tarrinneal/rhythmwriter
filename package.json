@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
+    "devtools": "react-devtools",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
@@ -20,7 +21,8 @@
     "react-native-web": "^0.17.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9"
+    "@babel/core": "^7.12.9",
+    "react-devtools": "^4.24.3"
   },
   "private": true
 }
