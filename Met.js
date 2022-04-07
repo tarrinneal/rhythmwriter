@@ -83,6 +83,9 @@ export default function Met({ tempo, setTempo }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    // backgroundColor: "radial-gradient(closest-side, #3f87a6, #ebf8e1, #f69d3c)",
+    // backgroundColor:
+    //   "linear-gradient(134deg, rgb(250 250 250) 0%, rgb(1 43 43) 25%, rgb(0 0 0) 100)",
     flexDirection: "row",
     backgroundColor: "gray",
     alignItems: "center",
