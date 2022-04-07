@@ -5,17 +5,17 @@ import {
   View,
   TextInput,
   Keyboard,
-} from 'react-native';
-import React, { useState, useEffect, useRef } from 'react';
-import { Audio } from 'expo-av';
+} from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { Audio } from "expo-av";
 
 export default function Met({ tempo, setTempo }) {
   const [metOn, setMetOn] = useState(false);
   const [sound, setSound] = useState();
 
   const buttonPress = async () => {
-    if (tempo === '') {
-      alert('Please enter a tempo');
+    if (tempo === "") {
+      alert("Please enter a tempo");
       return;
     }
     if (metOn) {
@@ -29,7 +29,7 @@ export default function Met({ tempo, setTempo }) {
 
   const runMet = async () => {
     const { sound } = await Audio.Sound.createAsync(
-      require('./assets/beepLow.mp3')
+      require("./assets/beepLow.mp3")
     );
     setSound(sound);
     sound.playAsync();
@@ -38,10 +38,10 @@ export default function Met({ tempo, setTempo }) {
   const updateTempo = async (tempo) => {
     if (+tempo > 0) {
       setTempo(tempo);
-    } else if (tempo === '') {
-      setTempo('');
+    } else if (tempo === "") {
+      setTempo("");
     } else {
-      alert('Tempo must be greater than 0');
+      alert("Tempo must be greater than 0");
     }
   };
 
@@ -54,54 +54,74 @@ export default function Met({ tempo, setTempo }) {
   }, [sound]);
 
   return (
-    <View style={styles.container}>
+    // <View style={styles}>
+    <View style={styles.metContainer}>
       <Pressable
         onPress={buttonPress}
         style={() => [
           {
-            backgroundColor: metOn ? 'rgb(210, 230, 255)' : 'white',
+            backgroundColor: metOn ? "rgb(210, 230, 255)" : "white",
           },
           styles.wrapperCustom,
         ]}
       >
-        {() => <Text style={styles.text}>{metOn ? 'Stop' : 'Met'}</Text>}
+        {() => <Text style={styles.text}>{metOn ? "Stop" : "Play"}</Text>}
       </Pressable>
       <TextInput
         style={styles.input}
         onChangeText={updateTempo}
         onSubmitEditing={Keyboard.dismiss}
         value={tempo.toString()}
-        placeholder='Tempo'
-        keyboardType='numeric'
-      />
+        placeholder="Tempo"
+        keyboardType="numeric"
+      ></TextInput>
     </View>
+    // </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#748',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 50,
+    // backgroundColor: "radial-gradient(closest-side, #3f87a6, #ebf8e1, #f69d3c)",
+    // backgroundColor:
+    //   "linear-gradient(134deg, rgb(250 250 250) 0%, rgb(1 43 43) 25%, rgb(0 0 0) 100)",
+    flexDirection: "row",
+    backgroundColor: "gray",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "20%",
   },
   text: {
-    color: '#999',
+    color: "white",
   },
   input: {
+    fontSize: 50,
+    color: "white",
     height: 40,
     margin: 12,
-    borderWidth: 1,
-    padding: 10,
+    maxWidth: 90,
   },
   wrapperCustom: {
+    borderColor: "white",
+    borderWidth: 1,
     borderRadius: 25,
     width: 50,
     height: 50,
-    backgroundColor: 'red',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "red",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  metContainer: {
+    backgroundColor: "gray",
+    borderWidth: 1,
+    marginTop: 10,
+    marginLeft: 100,
+    marginRight: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    borderColor: "white",
   },
 });
