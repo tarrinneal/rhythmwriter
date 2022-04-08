@@ -1,11 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import React, { useState } from 'react';
-import { useScore } from 'react-native-vexflow';
-import Vex from 'vexflow';
-const { Accidental } = Vex.Flow;
+import React, { useState, useEffect } from 'react';
+
+// const { Accidental, Annotation } = Vex.Flow;
 
 import Met from './Met';
+import Music from './Music';
 
 const noteValues = {
   1: '𝅘𝅥',
@@ -59,16 +59,14 @@ export default function App() {
   const [times, setTimes] = useState([]);
   const [tempo, setTempo] = useState(180);
   const [notesCompleted, setNotesCompleted] = useState(false);
-  const [context, stave] = useScore({
-    contextSize: { x: 300, y: 300 }, // this determine the canvas size
-    staveOffset: { x: 5, y: 5 }, // this determine the starting point of the staff relative to top-right corner of canvas
-    staveWidth: 250, // ofc, stave width
-    timeSig: '4/4', // time signiture
-  });
-  const VF = Vex.Flow;
 
   const buttonPress = async (hand, mod) => {
     setTimes([...times, { hand, mod, time: global.nativePerformanceNow() }]);
+    setNotesCompleted(false);
+  };
+
+  const reset = () => {
+    setTimes([]);
     setNotesCompleted(false);
   };
 
@@ -101,48 +99,35 @@ export default function App() {
         longRest,
       };
     });
-    console.log(newTimes);
+    // console.log(newTimes);
     await setTimes(newTimes);
-    setNotesCompleted(true);
-    writeMusic();
+    if (newTimes?.length > 0) {
+      setNotesCompleted(true);
+    }
   };
 
-  const writeMusic = async () => {
-    let notes = times.map((time, i) => {
-      return new VF.StaveNote({ keys: ['b/5'], duration: 'q' }).addAnnotation(
-        0,
-        new VF.Annotation('R')
-          .setFont('Arial', 10)
-          .setVerticalJustification('bottom')
-      );
-    });
-
-    var voice = new VF.Voice({ num_beats: 4, beat_value: 4 });
-    voice.addTickables(notes);
-
-    var formatter = new VF.Formatter().joinVoices([voice]).format([voice], 200);
-
-    // Render voice
-    voice.draw(context, stave);
-  };
-  //{context.render()}
   return (
     <>
       <View style={styles.appContainer}>
         <View style={styles.noteContainer}>
-          {times.map((time, i) => (
-            <Text key={time.hand + i}>
-              {notesCompleted
-                ? `${time.mod ? time.mod : ''}${time.note} ${
-                    time.longRest ? time.longRest + ' beats of rest ' : ''
-                  }${time.rest ? time.rest + ' ' : ''}`
-                : time.hand}
-            </Text>
-          ))}
+          {notesCompleted ? (
+            <Music times={times} />
+          ) : (
+            times.map((time, i) => (
+              <Text key={time.hand + i}>
+                {notesCompleted
+                  ? `${time.mod ? time.mod : ''}${time.note} ${
+                      time.longRest ? time.longRest + ' beats of rest ' : ''
+                    }${time.rest ? time.rest + ' ' : ''}`
+                  : time.hand}
+              </Text>
+            ))
+          )}
         </View>
+
         <View style={styles.buttonContainer}>
           <Pressable
-            onPress={() => setTimes([])}
+            onPress={reset}
             style={({ pressed }) => [
               {
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
@@ -226,7 +211,7 @@ const styles = StyleSheet.create({
     height: '100%',
     // borderColor: "white",
     // borderWidth: 2,
-    backgroundColor: 'black',
+    backgroundColor: 'white',
     padding: 15,
   },
   noteContainer: {
