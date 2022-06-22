@@ -8,27 +8,15 @@ import Met from './Met';
 import Music from './Music';
 
 const noteValues = {
-  1: '𝅘𝅥',
-  0.75: '𝅘𝅥𝅮.',
-  0.666: '3𝅘𝅥',
-  0.5: '𝅘𝅥𝅮',
-  0.333: '3𝅘𝅥𝅮',
-  0.25: '𝅘𝅥𝅯',
-  0.166: '3𝅘𝅥𝅯',
-  0.125: '𝅘𝅥𝅰',
-  0.0625: '𝅘𝅥𝅱',
-};
-
-const restValues = {
-  1: '𝄽',
-  0.75: '𝄾𝄿',
-  0.666: '3𝄽',
-  0.5: '𝄾',
-  0.333: '3𝄾',
-  0.25: '𝄿',
-  0.166: '3𝄿',
-  0.125: '𝅀',
-  0.0625: '𝅁',
+  1: 'q',
+  0.75: 'd8',
+  0.666: '3-8',
+  0.5: '8',
+  0.333: '3-16',
+  0.25: '16',
+  0.166: '3-32',
+  0.125: '32',
+  0.0625: '64',
 };
 
 const noteRounder = (num) => {
@@ -59,10 +47,15 @@ export default function App() {
   const [times, setTimes] = useState([]);
   const [tempo, setTempo] = useState(180);
   const [notesCompleted, setNotesCompleted] = useState(false);
+  const [tsNum, setTsNum] = useState(4);
+  const [tsDenum, setTsDenum] = useState(4);
 
   const buttonPress = async (hand, mod) => {
-    setTimes([...times, { hand, mod, time: global.nativePerformanceNow() }]);
-    setNotesCompleted(false);
+    await setTimes([
+      ...times,
+      { hand, mod, time: global.nativePerformanceNow() },
+    ]);
+    await setNotesCompleted(false);
   };
 
   const reset = () => {
@@ -72,7 +65,8 @@ export default function App() {
 
   const calculateNotes = async () => {
     let tempS = 60 / tempo;
-    let newTimes = times.map((time, i) => {
+    const newTimes = [];
+    times.forEach((time, i) => {
       let dif = times[i + 1] ? times[i + 1].time - time.time : tempS * 1000;
       let difS = dif / 1000;
       let unround = difS / tempS;
@@ -80,30 +74,44 @@ export default function App() {
       let longRest = 0;
       if (unround > 1) {
         let remainder = unround - 1;
-        console.log(remainder);
+        // console.log(remainder);
         unround = 1;
         longRest = Math.floor(remainder);
-        console.log(longRest);
+        // console.log(longRest);
         remain = remainder - longRest < 0.2 ? 0 : remainder - longRest;
-        console.log(remain);
+        // console.log(remain);
       }
       let round = noteRounder(unround);
       let note = noteValues[round];
 
-      let rest = restValues[noteRounder(remain)];
+      let rest = noteRounder(remain);
 
-      return {
+      newTimes.push({
         ...time,
         note,
         rest,
         longRest,
-      };
+      });
+      if (rest) {
+        newTimes.push({
+          ...time,
+          note: noteValues[rest] + 'r',
+          rest: 0,
+          longRest: 0,
+        });
+      }
     });
     // console.log(newTimes);
+    groupByBar(newTimes);
     await setTimes(newTimes);
     if (newTimes?.length > 0) {
-      setNotesCompleted(true);
+      await setNotesCompleted(true);
     }
+  };
+
+  groupByBar = (times) => {
+    //seperate times into bars, split last note of bar if needed
+    //add rests to end of last bar if needed
   };
 
   return (
@@ -111,7 +119,7 @@ export default function App() {
       <View style={styles.appContainer}>
         <View style={styles.noteContainer}>
           {notesCompleted ? (
-            <Music times={times} />
+            <Music times={times} tsNum={tsNum} tsDenum={tsDenum} />
           ) : (
             times.map((time, i) => (
               <Text key={time.hand + i}>
