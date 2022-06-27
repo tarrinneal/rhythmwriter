@@ -11,8 +11,8 @@ import React, { useState } from 'react';
 import { useScore } from 'react-native-vexflow';
 import Vex from 'vexflow';
 
-export default function Music({ times, tsNum, tsDenum }) {
-  const { StaveNote, Annotation, Voice, Formatter } = Vex.Flow;
+export default function Music({ bar, tsNum, tsDenum, barNum }) {
+  const { StaveNote, Annotation, Voice, Formatter, Tuplet } = Vex.Flow;
   const [context, stave] = useScore({
     contextSize: { x: 310, y: 150 }, // this determine the canvas size
     staveOffset: { x: 5, y: 5 }, // this determine the starting point of the staff relative to top-right corner of canvas
@@ -22,44 +22,29 @@ export default function Music({ times, tsNum, tsDenum }) {
 
   let tuples = [];
 
-  let notes = times.map((time, i) => {
-    console.log(time);
-
+  let newBars = bar.map((time, i) => {
     time.note = time.note || 'q';
-
-    if (time?.note?.includes('-')) {
-      console.log('dashed');
-      let splitTime = time.note.split('-', '');
-      tuples.push([i, splitTime[0]]);
-      time.note = splitTime[1];
-    }
 
     let noteData = {
       keys: ['c/5'],
       duration: time.note,
-      dots: time.note.includes('d') ? 1 : 0,
     };
+    let dot = false;
+    time?.mod?.forEach((mod) => {
+      if (typeof mod === 'number') {
+        tuples.push([i, time.mod.toString()]);
+      } else if (mod === 'd') {
+        dot = true;
+        noteData.dots = 1;
+      }
+    });
 
     const note = new StaveNote(noteData);
 
-    if (time?.note?.includes('d')) {
-      // console.log('dotted');
-      // let note = new StaveNote({
-      //   keys: ['c/5'],
-      //   duration: time.note,
-      //   dots: 1,
-      // }).addAnnotation(
-      //   0,
-      //   new Annotation(time.hand)
-      //     .setFont('Arial', 10)
-      //     .setVerticalJustification('bottom')
-      // );
-      // note.addDotToAll();
-      // return note;
+    if (dot) {
+      note.addDotToAll();
     }
 
-    // console.log(time);
-    // console.log('normal');
     if (time.hand) {
       note.addAnnotation(
         0,
@@ -71,12 +56,8 @@ export default function Music({ times, tsNum, tsDenum }) {
 
     return note;
   });
-  console.log(notes.length);
-  notes.forEach((note, i) => {
-    console.log(note.duration, note.dots);
-  });
-  var voice = new Voice({ num_beats: tsNum, beat_value: tsDenum });
-  voice.addTickables(notes);
+  let voice = new Voice({ num_beats: tsNum, beat_value: tsDenum });
+  voice.addTickables(newBars);
 
   let formatter = new Formatter().joinVoices([voice]).format([voice], 200);
 

@@ -8,19 +8,21 @@ import Met from './Met';
 import Music from './Music';
 
 const noteValues = {
-  1: 'q',
-  0.75: 'd8',
-  0.666: '3-8',
-  0.5: '8',
-  0.333: '3-16',
-  0.25: '16',
-  0.166: '3-32',
-  0.125: '32',
-  0.0625: '64',
+  1: ['q'],
+  0.75: ['8', 'd'],
+  0.666: ['8', 3],
+  0.5: ['8'],
+  0.333: ['16', 3],
+  0.25: ['16'],
+  0.166: ['32', 3],
+  0.125: ['32'],
+  0.0625: ['64'],
 };
 
+const noteOrderWOutDotted = [1, 0.666, 0.5, 0.333, 0.25, 0.166, 0.125, 0.0625];
+
 const noteRounder = (num) => {
-  if (num === 0) {
+  if (num < 0.01) {
     return 0;
   } else if (num < 0.1) {
     return 0.0625;
@@ -45,6 +47,7 @@ const noteRounder = (num) => {
 
 export default function App() {
   const [times, setTimes] = useState([]);
+  const [calculatedTimes, setCalculatedTimes] = useState([]);
   const [tempo, setTempo] = useState(180);
   const [notesCompleted, setNotesCompleted] = useState(false);
   const [tsNum, setTsNum] = useState(4);
@@ -60,6 +63,7 @@ export default function App() {
 
   const reset = () => {
     setTimes([]);
+    setCalculatedTimes([]);
     setNotesCompleted(false);
   };
 
@@ -74,63 +78,141 @@ export default function App() {
       let longRest = 0;
       if (unround > 1) {
         let remainder = unround - 1;
-        // console.log(remainder);
         unround = 1;
         longRest = Math.floor(remainder);
-        // console.log(longRest);
         remain = remainder - longRest < 0.2 ? 0 : remainder - longRest;
-        // console.log(remain);
       }
       let round = noteRounder(unround);
-      let note = noteValues[round];
+      let [note, ...mod] = noteValues[round];
 
       let rest = noteRounder(remain);
 
       newTimes.push({
         ...time,
+        round,
         note,
-        rest,
-        longRest,
+        mod,
       });
       if (rest) {
+        let [note, ...mod] = noteValues[rest];
         newTimes.push({
-          ...time,
-          note: noteValues[rest] + 'r',
-          rest: 0,
-          longRest: 0,
+          round: rest,
+          note: note + 'r',
+          mod,
         });
       }
+
+      while (longRest > 0) {
+        newTimes.push({
+          round: 1,
+          note: 'qr',
+        });
+        longRest--;
+      }
     });
-    // console.log(newTimes);
-    groupByBar(newTimes);
-    await setTimes(newTimes);
-    if (newTimes?.length > 0) {
-      await setNotesCompleted(true);
-    }
+    console.log(newTimes.length);
+
+    const bars = groupByBar(newTimes);
+    setCalculatedTimes(bars);
   };
 
   groupByBar = (times) => {
-    //seperate times into bars, split last note of bar if needed
-    //add rests to end of last bar if needed
+    const barLen = (tsNum / tsDenum) * 4;
+    let bars = [];
+    let bar = [];
+    let barLeft = barLen;
+    times.forEach((time, i) => {
+      console.log(time);
+      if (barLeft <= 0) {
+        bars.push(bar);
+        bar = [];
+        barLeft = barLen;
+      }
+      if (barLeft > time.round) {
+        bar.push(time);
+        barLeft -= time.round;
+      } else {
+        for (let num of noteOrderWOutDotted) {
+          if (barLeft <= 0) {
+            break;
+          }
+          if (num <= barLeft) {
+            let [note, ...mod] = noteValues[num];
+            bar.push({
+              round: num,
+              note: note,
+              mod,
+            });
+
+            barLeft -= num;
+            if (barLeft <= 0) {
+              break;
+            }
+            let newRestLen = noteRounder(time.round - num);
+            [note, ...mod] = noteValues[newRestLen];
+            times.splice(i + 1, 0, {
+              round: newRestLen,
+              note: note + 'r',
+              mod,
+            });
+          }
+        }
+      }
+    });
+    if (bar.length > 0) {
+      const remain = [];
+      while (barLeft > 0) {
+        if (barLeft > 1) {
+          remain.push({
+            round: 1,
+            note: 'qr',
+          });
+          barLeft -= 1;
+        } else {
+          for (let num of noteOrderWOutDotted) {
+            if (barLeft <= 0) {
+              break;
+            }
+            if (num <= barLeft) {
+              const [note, ...mod] = noteValues[num];
+              remain.push({
+                round: num,
+                note: note + 'r',
+                mod,
+              });
+              barLeft = noteRounder(barLeft - num);
+            }
+          }
+        }
+      }
+      bar.push(...remain.reverse());
+      bars.push(bar);
+    }
+    return bars;
   };
 
   return (
     <>
       <View style={styles.appContainer}>
         <View style={styles.noteContainer}>
-          {notesCompleted ? (
-            <Music times={times} tsNum={tsNum} tsDenum={tsDenum} />
-          ) : (
-            times.map((time, i) => (
-              <Text key={time.hand + i}>
-                {notesCompleted
-                  ? `${time.mod ? time.mod : ''}${time.note} ${
-                      time.longRest ? time.longRest + ' beats of rest ' : ''
-                    }${time.rest ? time.rest + ' ' : ''}`
-                  : time.hand}
-              </Text>
-            ))
-          )}
+          {calculatedTimes.length > 0
+            ? calculatedTimes.map((bar, barNum) => (
+                <Music
+                  bar={bar}
+                  barNum={barNum}
+                  tsNum={tsNum}
+                  tsDenum={tsDenum}
+                />
+              ))
+            : times.map((time, i) => (
+                <Text key={time.hand + i}>
+                  {notesCompleted
+                    ? `${time.mod ? time.mod : ''}${time.note} ${
+                        time.longRest ? time.longRest + ' beats of rest ' : ''
+                      }${time.rest ? time.rest + ' ' : ''}`
+                    : time.hand}
+                </Text>
+              ))}
         </View>
 
         <View style={styles.buttonContainer}>
