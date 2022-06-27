@@ -14,8 +14,8 @@ import Vex from 'vexflow';
 export default function Music({ bar, tsNum, tsDenum, barNum }) {
   const { StaveNote, Annotation, Voice, Formatter, Tuplet } = Vex.Flow;
   const [context, stave] = useScore({
-    contextSize: { x: 310, y: 150 }, // this determine the canvas size
-    staveOffset: { x: 5, y: 5 }, // this determine the starting point of the staff relative to top-right corner of canvas
+    contextSize: { x: 310, y: 100 }, // this determine the canvas size
+    staveOffset: { x: 0, y: 0 }, // this determine the starting point of the staff relative to top-right corner of canvas
     staveWidth: 300, // ofc, stave width
     timeSig: `${tsNum}/${tsDenum}`, // time signiture
   });
