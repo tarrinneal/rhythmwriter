@@ -54,7 +54,10 @@ export default function App() {
   const [tsDenum, setTsDenum] = useState(4);
 
   const buttonPress = async (hand, mod) => {
-    await setTimes([...times, { hand, mod, time: Date.now() }]);
+    await setTimes([
+      ...times,
+      { hand, mod, time: global.nativePerformanceNow() },
+    ]);
     await setNotesCompleted(false);
   };
 
