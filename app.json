@@ -2,7 +2,7 @@
   "expo": {
     "name": "Rhythm Writer",
     "slug": "RhythmWriter",
-    "version": "0.0.2",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -19,7 +19,7 @@
     },
     "android": {
       "package": "com.rhythmwriter",
-      "versionCode": 2,
+      "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
