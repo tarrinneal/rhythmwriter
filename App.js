@@ -83,7 +83,11 @@ export default function App() {
         remain = remainder - longRest < 0.2 ? 0 : remainder - longRest;
       }
       let round = noteRounder(unround);
-      let [note, ...mod] = noteValues[round];
+      let [note, ...mods] = noteValues[round];
+      console.log(mods, time.mod);
+      if (time.mod) {
+        mods.push(...time.mod);
+      }
 
       let rest = noteRounder(remain);
 
@@ -91,7 +95,7 @@ export default function App() {
         ...time,
         round,
         note,
-        mod,
+        mod: mods,
       });
       if (rest) {
         let [note, ...mod] = noteValues[rest];
@@ -131,9 +135,20 @@ export default function App() {
         bar.push(time);
         barLeft -= time.round;
       } else {
-        const next = addNextNote(bar, barLeft);
-        bar.push(next);
-        barLeft = noteRounder(barLeft - next.round);
+        let diff = noteRounder(time.round - barLeft);
+        let [note, ...diffMod] = noteValues[diff];
+        while (barLeft > 0) {
+          const next = addNextNote(bar, barLeft, time);
+          bar.push(next);
+          barLeft = noteRounder(barLeft - next.round);
+        }
+        times.splice(i + 1, 0, {
+          ...time,
+          round: diff,
+          hand: undefined,
+          mod: diffMod,
+          note: note + 'r',
+        });
       }
     });
     if (bar.length > 0) {
@@ -146,7 +161,7 @@ export default function App() {
           });
           barLeft -= 1;
         } else {
-          const next = addNextNote(bar, barLeft, true);
+          const next = addNextNote(bar, barLeft, null, true);
           bar.push(next);
           barLeft = noteRounder(barLeft - next.round);
         }
@@ -157,16 +172,18 @@ export default function App() {
     return bars;
   };
 
-  const addNextNote = (bar, barLeft, rest = false) => {
+  const addNextNote = (bar, barLeft, oldNote = null, rest = false) => {
     let r = rest ? 'r' : '';
+    let hand = oldNote ? oldNote.hand : undefined;
     if (barLeft <= 0) {
-      return bar;
+      return;
     }
 
     if (barLeft >= 1) {
       return {
         round: 1,
         note: 'q' + r,
+        hand,
       };
     }
 
@@ -174,6 +191,7 @@ export default function App() {
       return {
         round: 0.5,
         note: '8' + r,
+        hand,
       };
     }
 
@@ -181,6 +199,7 @@ export default function App() {
       return {
         round: 0.25,
         note: '16' + r,
+        hand,
       };
     }
 
@@ -188,6 +207,7 @@ export default function App() {
       return {
         round: 0.125,
         note: '32' + r,
+        hand,
       };
     }
 
@@ -195,6 +215,7 @@ export default function App() {
       return {
         round: 0.0625,
         note: '64' + r,
+        hand,
       };
     }
 
@@ -202,6 +223,7 @@ export default function App() {
       return {
         round: 0.666,
         note: 'q' + r,
+        hand,
         mod: [3],
       };
     }
@@ -210,6 +232,7 @@ export default function App() {
       return {
         round: 0.333,
         note: '8' + r,
+        hand,
         mod: [3],
       };
     }
@@ -218,6 +241,7 @@ export default function App() {
       return {
         round: 0.166,
         note: '16' + r,
+        hand,
         mod: [3],
       };
     }
@@ -225,6 +249,7 @@ export default function App() {
     return {
       round: 0.0625,
       note: '32' + r,
+      hand,
     };
   };
 
@@ -281,7 +306,7 @@ export default function App() {
         <View style={styles.drummingContainer}>
           <View style={styles.firstButtonRow}>
             <Pressable
-              onTouchStart={() => buttonPress('L', '^')}
+              onTouchStart={() => buttonPress('L', '>')}
               style={({ pressed }) => [
                 {
                   backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
@@ -289,10 +314,10 @@ export default function App() {
                 styles.accentButtons,
               ]}
             >
-              {({ pressed }) => <Text style={{ color: 'black' }}>^L</Text>}
+              {({ pressed }) => <Text style={{ color: 'black' }}>{'>'}L</Text>}
             </Pressable>
             <Pressable
-              onTouchStart={() => buttonPress('R', '^')}
+              onTouchStart={() => buttonPress('R', '>')}
               style={({ pressed }) => [
                 {
                   backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
@@ -300,7 +325,7 @@ export default function App() {
                 styles.accentButtons,
               ]}
             >
-              {({ pressed }) => <Text style={{ color: 'black' }}>^R</Text>}
+              {({ pressed }) => <Text style={{ color: 'black' }}>{'>'}R</Text>}
             </Pressable>
           </View>
           <View style={styles.secondButtonRow}>
