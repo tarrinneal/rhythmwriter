@@ -14,8 +14,15 @@ import Vex from 'vexflow';
 export default function Music({ bar, tsNum, tsDenum, barNum }) {
   console.log('bar', bar);
   console.log(bar.reduce((acc, curr) => acc + curr.round, 0));
-  const { StaveNote, Annotation, Voice, Formatter, Tuplet, RESOLUTION } =
-    Vex.Flow;
+  const {
+    StaveNote,
+    Annotation,
+    Voice,
+    Formatter,
+    Tuplet,
+    Articulation,
+    RESOLUTION,
+  } = Vex.Flow;
   const [context, stave] = useScore({
     contextSize: { x: 310, y: 100 }, // this determine the canvas size
     staveOffset: { x: 0, y: 0 }, // this determine the starting point of the staff relative to top-right corner of canvas
@@ -32,21 +39,26 @@ export default function Music({ bar, tsNum, tsDenum, barNum }) {
       keys: ['c/5'],
       duration: time.note,
     };
-    let dot = false;
+
     time?.mod?.forEach((mod) => {
       if (typeof mod === 'number') {
         tuples.push([i, mod, 2]);
       } else if (mod === 'd') {
-        dot = true;
         noteData.dots = 1;
+      } else if (mod === '>') {
+        noteData.articulation = 'a>';
       }
     });
 
     let note = new StaveNote(noteData);
 
-    if (dot) {
-      note.addDotToAll();
-    }
+    time?.mod?.forEach((mod) => {
+      if (mod === 'd') {
+        note.addDotToAll();
+      } else if (mod === '>') {
+        note.addArticulation(0, new Articulation('a>').setPosition('above'));
+      }
+    });
 
     if (time.hand) {
       note.addAnnotation(
@@ -95,7 +107,7 @@ export default function Music({ bar, tsNum, tsDenum, barNum }) {
       }
     }
 
-    console.log(newTups);
+    // console.log(newTups);
     // debugger;
   }
   // Render voice
