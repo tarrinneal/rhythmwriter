@@ -10,16 +10,16 @@ import Music from './Music';
 const noteValues = {
   1: ['q'],
   0.75: ['8', 'd'],
-  0.666: ['8', 3],
+  0.666: ['q', 3],
   0.5: ['8'],
-  0.333: ['16', 3],
+  0.333: ['8', 3],
   0.25: ['16'],
-  0.166: ['32', 3],
+  0.166: ['16', 3],
   0.125: ['32'],
   0.0625: ['64'],
 };
 
-const noteOrderWOutDotted = [1, 0.666, 0.5, 0.333, 0.25, 0.166, 0.125, 0.0625];
+const noteOrder = [1, 0.75, 0.666, 0.5, 0.333, 0.25, 0.166, 0.125, 0.0625];
 
 const noteRounder = (num) => {
   if (num < 0.01) {
@@ -54,10 +54,7 @@ export default function App() {
   const [tsDenum, setTsDenum] = useState(4);
 
   const buttonPress = async (hand, mod) => {
-    await setTimes([
-      ...times,
-      { hand, mod, time: global.nativePerformanceNow() },
-    ]);
+    await setTimes([...times, { hand, mod, time: Date.now() }]);
     await setNotesCompleted(false);
   };
 
@@ -110,7 +107,6 @@ export default function App() {
         longRest--;
       }
     });
-    console.log(newTimes.length);
 
     const bars = groupByBar(newTimes);
     setCalculatedTimes(bars);
@@ -121,8 +117,8 @@ export default function App() {
     let bars = [];
     let bar = [];
     let barLeft = barLen;
+
     times.forEach((time, i) => {
-      console.log(time);
       if (barLeft <= 0) {
         bars.push(bar);
         bar = [];
@@ -132,31 +128,9 @@ export default function App() {
         bar.push(time);
         barLeft -= time.round;
       } else {
-        for (let num of noteOrderWOutDotted) {
-          if (barLeft <= 0) {
-            break;
-          }
-          if (num <= barLeft) {
-            let [note, ...mod] = noteValues[num];
-            bar.push({
-              round: num,
-              note: note,
-              mod,
-            });
-
-            barLeft -= num;
-            if (barLeft <= 0) {
-              break;
-            }
-            let newRestLen = noteRounder(time.round - num);
-            [note, ...mod] = noteValues[newRestLen];
-            times.splice(i + 1, 0, {
-              round: newRestLen,
-              note: note + 'r',
-              mod,
-            });
-          }
-        }
+        const next = addNextNote(bar, barLeft);
+        bar.push(next);
+        barLeft = noteRounder(barLeft - next.round);
       }
     });
     if (bar.length > 0) {
@@ -169,26 +143,86 @@ export default function App() {
           });
           barLeft -= 1;
         } else {
-          for (let num of noteOrderWOutDotted) {
-            if (barLeft <= 0) {
-              break;
-            }
-            if (num <= barLeft) {
-              const [note, ...mod] = noteValues[num];
-              remain.push({
-                round: num,
-                note: note + 'r',
-                mod,
-              });
-              barLeft = noteRounder(barLeft - num);
-            }
-          }
+          const next = addNextNote(bar, barLeft, true);
+          bar.push(next);
+          barLeft = noteRounder(barLeft - next.round);
         }
       }
-      bar.push(...remain.reverse());
+      bar.push(...remain);
       bars.push(bar);
     }
     return bars;
+  };
+
+  const addNextNote = (bar, barLeft, rest = false) => {
+    let r = rest ? 'r' : '';
+    if (barLeft <= 0) {
+      return bar;
+    }
+
+    if (barLeft >= 1) {
+      return {
+        round: 1,
+        note: 'q' + r,
+      };
+    }
+
+    if (barLeft % 0.5 === 0) {
+      return {
+        round: 0.5,
+        note: '8' + r,
+      };
+    }
+
+    if (barLeft % 0.25 === 0) {
+      return {
+        round: 0.25,
+        note: '16' + r,
+      };
+    }
+
+    if (barLeft % 0.125 === 0) {
+      return {
+        round: 0.125,
+        note: '32' + r,
+      };
+    }
+
+    if (barLeft % 0.0625 === 0) {
+      return {
+        round: 0.0625,
+        note: '64' + r,
+      };
+    }
+
+    if (barLeft >= 0.666) {
+      return {
+        round: 0.666,
+        note: 'q' + r,
+        mod: [3],
+      };
+    }
+
+    if (barLeft >= 0.333) {
+      return {
+        round: 0.333,
+        note: '8' + r,
+        mod: [3],
+      };
+    }
+
+    if (barLeft >= 0.166) {
+      return {
+        round: 0.166,
+        note: '16' + r,
+        mod: [3],
+      };
+    }
+
+    return {
+      round: 0.0625,
+      note: '32' + r,
+    };
   };
 
   return (
