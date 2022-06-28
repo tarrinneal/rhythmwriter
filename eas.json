@@ -13,6 +13,10 @@
     "production": {}
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./pc-api-8200748685819292150-780-35a2018d6149.json"
+      }
+    }
   }
 }

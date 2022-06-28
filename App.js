@@ -1,38 +1,28 @@
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import React, { useState } from 'react';
-import { useScore } from 'react-native-vexflow';
-import Vex from 'vexflow';
-const { Accidental } = Vex.Flow;
+import React, { useState, useEffect } from 'react';
+
+// const { Accidental, Annotation } = Vex.Flow;
 
 import Met from './Met';
+import Music from './Music';
 
 const noteValues = {
-  1: '𝅘𝅥',
-  0.75: '𝅘𝅥𝅮.',
-  0.666: '3𝅘𝅥',
-  0.5: '𝅘𝅥𝅮',
-  0.333: '3𝅘𝅥𝅮',
-  0.25: '𝅘𝅥𝅯',
-  0.166: '3𝅘𝅥𝅯',
-  0.125: '𝅘𝅥𝅰',
-  0.0625: '𝅘𝅥𝅱',
+  1: ['q'],
+  0.75: ['8', 'd'],
+  0.666: ['q', 3],
+  0.5: ['8'],
+  0.333: ['8', 3],
+  0.25: ['16'],
+  0.166: ['16', 3],
+  0.125: ['32'],
+  0.0625: ['64'],
 };
 
-const restValues = {
-  1: '𝄽',
-  0.75: '𝄾𝄿',
-  0.666: '3𝄽',
-  0.5: '𝄾',
-  0.333: '3𝄾',
-  0.25: '𝄿',
-  0.166: '3𝄿',
-  0.125: '𝅀',
-  0.0625: '𝅁',
-};
+const noteOrder = [1, 0.75, 0.666, 0.5, 0.333, 0.25, 0.166, 0.125, 0.0625];
 
 const noteRounder = (num) => {
-  if (num === 0) {
+  if (num < 0.01) {
     return 0;
   } else if (num < 0.1) {
     return 0.0625;
@@ -57,24 +47,27 @@ const noteRounder = (num) => {
 
 export default function App() {
   const [times, setTimes] = useState([]);
+  const [calculatedTimes, setCalculatedTimes] = useState([]);
   const [tempo, setTempo] = useState(180);
   const [notesCompleted, setNotesCompleted] = useState(false);
-  const [context, stave] = useScore({
-    contextSize: { x: 300, y: 300 }, // this determine the canvas size
-    staveOffset: { x: 5, y: 5 }, // this determine the starting point of the staff relative to top-right corner of canvas
-    staveWidth: 250, // ofc, stave width
-    timeSig: '4/4', // time signiture
-  });
-  const VF = Vex.Flow;
+  const [tsNum, setTsNum] = useState(4);
+  const [tsDenum, setTsDenum] = useState(4);
 
   const buttonPress = async (hand, mod) => {
-    setTimes([...times, { hand, mod, time: global.nativePerformanceNow() }]);
+    await setTimes([...times, { hand, mod, time: Date.now() }]);
+    await setNotesCompleted(false);
+  };
+
+  const reset = () => {
+    setTimes([]);
+    setCalculatedTimes([]);
     setNotesCompleted(false);
   };
 
   const calculateNotes = async () => {
     let tempS = 60 / tempo;
-    let newTimes = times.map((time, i) => {
+    const newTimes = [];
+    times.forEach((time, i) => {
       let dif = times[i + 1] ? times[i + 1].time - time.time : tempS * 1000;
       let difS = dif / 1000;
       let unround = difS / tempS;
@@ -82,67 +75,183 @@ export default function App() {
       let longRest = 0;
       if (unround > 1) {
         let remainder = unround - 1;
-        console.log(remainder);
         unround = 1;
         longRest = Math.floor(remainder);
-        console.log(longRest);
         remain = remainder - longRest < 0.2 ? 0 : remainder - longRest;
-        console.log(remain);
       }
       let round = noteRounder(unround);
-      let note = noteValues[round];
+      let [note, ...mod] = noteValues[round];
 
-      let rest = restValues[noteRounder(remain)];
+      let rest = noteRounder(remain);
 
-      return {
+      newTimes.push({
         ...time,
+        round,
         note,
-        rest,
-        longRest,
+        mod,
+      });
+      if (rest) {
+        let [note, ...mod] = noteValues[rest];
+        newTimes.push({
+          round: rest,
+          note: note + 'r',
+          mod,
+        });
+      }
+
+      while (longRest > 0) {
+        newTimes.push({
+          round: 1,
+          note: 'qr',
+        });
+        longRest--;
+      }
+    });
+
+    const bars = groupByBar(newTimes);
+    setCalculatedTimes(bars);
+  };
+
+  groupByBar = (times) => {
+    const barLen = (tsNum / tsDenum) * 4;
+    let bars = [];
+    let bar = [];
+    let barLeft = barLen;
+
+    times.forEach((time, i) => {
+      if (barLeft <= 0) {
+        bars.push(bar);
+        bar = [];
+        barLeft = barLen;
+      }
+      if (barLeft > time.round) {
+        bar.push(time);
+        barLeft -= time.round;
+      } else {
+        const next = addNextNote(bar, barLeft);
+        bar.push(next);
+        barLeft = noteRounder(barLeft - next.round);
+      }
+    });
+    if (bar.length > 0) {
+      const remain = [];
+      while (barLeft > 0) {
+        if (barLeft > 1) {
+          remain.push({
+            round: 1,
+            note: 'qr',
+          });
+          barLeft -= 1;
+        } else {
+          const next = addNextNote(bar, barLeft, true);
+          bar.push(next);
+          barLeft = noteRounder(barLeft - next.round);
+        }
+      }
+      bar.push(...remain);
+      bars.push(bar);
+    }
+    return bars;
+  };
+
+  const addNextNote = (bar, barLeft, rest = false) => {
+    let r = rest ? 'r' : '';
+    if (barLeft <= 0) {
+      return bar;
+    }
+
+    if (barLeft >= 1) {
+      return {
+        round: 1,
+        note: 'q' + r,
       };
-    });
-    console.log(newTimes);
-    await setTimes(newTimes);
-    setNotesCompleted(true);
-    writeMusic();
+    }
+
+    if (barLeft % 0.5 === 0) {
+      return {
+        round: 0.5,
+        note: '8' + r,
+      };
+    }
+
+    if (barLeft % 0.25 === 0) {
+      return {
+        round: 0.25,
+        note: '16' + r,
+      };
+    }
+
+    if (barLeft % 0.125 === 0) {
+      return {
+        round: 0.125,
+        note: '32' + r,
+      };
+    }
+
+    if (barLeft % 0.0625 === 0) {
+      return {
+        round: 0.0625,
+        note: '64' + r,
+      };
+    }
+
+    if (barLeft >= 0.666) {
+      return {
+        round: 0.666,
+        note: 'q' + r,
+        mod: [3],
+      };
+    }
+
+    if (barLeft >= 0.333) {
+      return {
+        round: 0.333,
+        note: '8' + r,
+        mod: [3],
+      };
+    }
+
+    if (barLeft >= 0.166) {
+      return {
+        round: 0.166,
+        note: '16' + r,
+        mod: [3],
+      };
+    }
+
+    return {
+      round: 0.0625,
+      note: '32' + r,
+    };
   };
 
-  const writeMusic = async () => {
-    let notes = times.map((time, i) => {
-      return new VF.StaveNote({ keys: ['b/5'], duration: 'q' }).addAnnotation(
-        0,
-        new VF.Annotation('R')
-          .setFont('Arial', 10)
-          .setVerticalJustification('bottom')
-      );
-    });
-
-    var voice = new VF.Voice({ num_beats: 4, beat_value: 4 });
-    voice.addTickables(notes);
-
-    var formatter = new VF.Formatter().joinVoices([voice]).format([voice], 200);
-
-    // Render voice
-    voice.draw(context, stave);
-  };
-  //{context.render()}
   return (
     <>
       <View style={styles.appContainer}>
         <View style={styles.noteContainer}>
-          {times.map((time, i) => (
-            <Text key={time.hand + i}>
-              {notesCompleted
-                ? `${time.mod ? time.mod : ''}${time.note} ${
-                    time.longRest ? time.longRest + ' beats of rest ' : ''
-                  }${time.rest ? time.rest + ' ' : ''}`
-                : time.hand}
-            </Text>
-          ))}
+          {calculatedTimes.length > 0
+            ? calculatedTimes.map((bar, barNum) => (
+                <Music
+                  bar={bar}
+                  barNum={barNum}
+                  tsNum={tsNum}
+                  tsDenum={tsDenum}
+                />
+              ))
+            : times.map((time, i) => (
+                <Text key={time.hand + i}>
+                  {notesCompleted
+                    ? `${time.mod ? time.mod : ''}${time.note} ${
+                        time.longRest ? time.longRest + ' beats of rest ' : ''
+                      }${time.rest ? time.rest + ' ' : ''}`
+                    : time.hand}
+                </Text>
+              ))}
         </View>
+
         <View style={styles.buttonContainer}>
           <Pressable
-            onPress={() => setTimes([])}
+            onPress={reset}
             style={({ pressed }) => [
               {
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
@@ -226,7 +335,7 @@ const styles = StyleSheet.create({
     height: '100%',
     // borderColor: "white",
     // borderWidth: 2,
-    backgroundColor: 'black',
+    backgroundColor: 'white',
     padding: 15,
   },
   noteContainer: {
